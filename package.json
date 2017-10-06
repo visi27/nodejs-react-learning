@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "async": "^2.5.0",
     "body-parser": "^1.18.2",
+    "co": "^4.6.0",
     "express": "^4.16.1",
+    "mongodb": "^2.2.31",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-scripts": "1.0.14"
