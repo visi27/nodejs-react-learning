@@ -17,22 +17,18 @@ export default class IssueList extends React.Component {
     this.loadData()
   }
 
-  componentDidUpdate(prevProps) {
-    const oldQuery = prevProps.location.query;
-    const newQuery = this.props.location.query;
-    console.log(oldQuery)
-    console.log(newQuery)
-    if (!oldQuery || !newQuery) {
+  componentDidUpdate (prevProps, prevState, prevContext) {
+    const oldQuery = prevProps.location.search
+    const newQuery = this.props.location.search
+    // If old search params (query string) equals new ones then just return without doing anything
+    if (oldQuery === newQuery) {
       return
     }
-    if (oldQuery.status === newQuery.status) {
-      return
-    }
-    this.loadData();
+    this.loadData()
   }
 
   loadData () {
-    fetch(`/api/issues${this.props.location.search}`).then(response => {
+    window.fetch(`/api/issues${this.props.location.search}`).then(response => {
       if (response.ok) {
         response.json().then(data => {
           console.log('Total count of records:', data._metadata.total_count)
@@ -47,16 +43,16 @@ export default class IssueList extends React.Component {
         })
       } else {
         response.json().then(error => {
-          alert('Failed to fetch issues:' + error.message)
+          window.alert('Failed to fetch issues:' + error.message)
         })
       }
     }).catch(err => {
-      alert('Error in fetching data from server:' + err)
+      window.alert('Error in fetching data from server:' + err)
     })
   }
 
   createIssue (newIssue) {
-    fetch('/api/issues', {
+    window.fetch('/api/issues', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(newIssue)
@@ -72,12 +68,12 @@ export default class IssueList extends React.Component {
         })
       } else {
         response.json().then(error => {
-          alert('Failed to add issue: ' + error.message)
+          window.alert('Failed to add issue: ' + error.message)
         })
       }
     }).catch(err => {
       console.log('Error in sending data to server: ' + err.message)
-      alert('Error in sending data to server: ' + err.message)
+      window.alert('Error in sending data to server: ' + err.message)
     })
   }
 
@@ -96,7 +92,7 @@ export default class IssueList extends React.Component {
 }
 
 IssueList.propTypes = {
-  location: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired
 }
 
 const IssueRow = (props) => (
@@ -116,7 +112,6 @@ const IssueRow = (props) => (
 )
 
 function IssueTable (props) {
-
   const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue} />)
 
   return (
