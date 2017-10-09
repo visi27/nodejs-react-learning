@@ -2,6 +2,8 @@ import React from 'react'
 import 'whatwg-fetch'
 import IssueAdd from './IssueAdd.jsx'
 import IssueFilter from './IssueFilter.jsx'
+import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
 export default class IssueList extends React.Component {
   constructor () {
@@ -15,8 +17,22 @@ export default class IssueList extends React.Component {
     this.loadData()
   }
 
+  componentDidUpdate(prevProps) {
+    const oldQuery = prevProps.location.query;
+    const newQuery = this.props.location.query;
+    console.log(oldQuery)
+    console.log(newQuery)
+    if (!oldQuery || !newQuery) {
+      return
+    }
+    if (oldQuery.status === newQuery.status) {
+      return
+    }
+    this.loadData();
+  }
+
   loadData () {
-    fetch('/api/issues').then(response => {
+    fetch(`/api/issues${this.props.location.search}`).then(response => {
       if (response.ok) {
         response.json().then(data => {
           console.log('Total count of records:', data._metadata.total_count)
@@ -79,9 +95,17 @@ export default class IssueList extends React.Component {
   }
 }
 
+IssueList.propTypes = {
+  location: PropTypes.object.isRequired,
+}
+
 const IssueRow = (props) => (
   <tr>
-    <td>{props.issue._id}</td>
+    <td>
+      <Link to={`/issues/${props.issue._id}`}>
+        {props.issue._id.substr(-4)}
+      </Link>
+    </td>
     <td>{props.issue.status}</td>
     <td>{props.issue.owner}</td>
     <td>{props.issue.created.toDateString()}</td>

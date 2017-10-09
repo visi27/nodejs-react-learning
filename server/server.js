@@ -1,29 +1,22 @@
-import express from 'express'
-import bodyParser from 'body-parser'
-import { MongoClient } from 'mongodb';
-import Issue from './issue.js';
+const express = require('express')
+const bodyParser = require('body-parser')
+const MongoClient = require('mongodb')
+const Issue = require('./issue.js')
 
 const app = express()
 
 app.use(express.static('static'))
 app.use(bodyParser.json())
 
-if (process.env.NODE_ENV !== 'production') {
-  const webpack = require('webpack')
-  const webpackDevMiddleware = require('webpack-dev-middleware')
-  const webpackHotMiddleware = require('webpack-hot-middleware')
-  const config = require('../webpack.config')
-  config.entry.app.push('webpack-hot-middleware/client', 'webpack/hot/only-dev-server')
-  config.plugins.push(new webpack.HotModuleReplacementPlugin())
-  const bundler = webpack(config)
-  app.use(webpackDevMiddleware(bundler, {noInfo: true}))
-  app.use(webpackHotMiddleware(bundler, {log: console.log}))
-}
-
 app.get('/api/issues', (req, res) => {
-  db.collection('issues').find().toArray().then(issues => {
+  const filter = {}
+  if (req.query.status) {
+    filter.status = req.query.status
+  }
+
+  db.collection('issues').find(filter).toArray().then(issues => {
     const metadata = {total_count: issues.length}
-    res.json(({_metadata: metadata, records: issues}))
+    res.json({_metadata: metadata, records: issues})
   }).catch(error => {
     console.log('ERROR: ', error)
     res.status(500).json({message: `Internal Server Error: ${error}`})
